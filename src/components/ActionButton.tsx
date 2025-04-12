@@ -118,6 +118,7 @@ export default function ActionButton({
               name={name || "User"}
               image={imageUrl}
               onImageUpload={(imageString) => {
+                console.log("Image string: ", imageString);
                 setImageUrl(imageString);
               }}
             />

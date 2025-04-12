@@ -9,6 +9,7 @@ const AvatarIcon = ({
   image?: string;
   color: string;
 }) => {
+  console.log("From server:", { image });
   return (
     <Avatar id="avatar-icon" className="w-6 h-6 cursor-pointer">
       <AvatarImage src={image} alt="Uploaded avatar" />

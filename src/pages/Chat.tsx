@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChatRoomType } from "@/types/ChatRoom";
 import { sendMessage, updateTypingStatus } from "@/hooks/useSocket";
 import { Button } from "@/components/ui/button";
-import ChatConnectionSucess from "./ChatConnectionSucess";
+import ChatConnectionSuccess from "./ChatConnectionSuccess";
 import { SessionChatMessage } from "teleparty-websocket-lib";
 import MessageContainer from "@/components/MessageContainer";
 import { Textarea } from "@/components/ui/textarea";
@@ -172,7 +172,7 @@ const Chat = ({
 
   return (
     <div className="w-full h-full flex flex-col items-center gap-4">
-      <ChatConnectionSucess name={name} sessionId={sessionId} />
+      <ChatConnectionSuccess name={name} sessionId={sessionId} />
       <ChatContainer>
         <ChatHeader name={name} sessionId={sessionId} />
         <ChatMessages

@@ -1,4 +1,4 @@
-const ChatConnectionSucess = ({
+const ChatConnectionSuccess = ({
   name,
   sessionId,
 }: {
@@ -11,4 +11,4 @@ const ChatConnectionSucess = ({
     </div>
   );
 };
-export default ChatConnectionSucess;
+export default ChatConnectionSuccess;
