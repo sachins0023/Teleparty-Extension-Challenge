@@ -6,6 +6,7 @@ import ChatConnectionSucess from "./ChatConnectionSucess";
 import { SessionChatMessage } from "teleparty-websocket-lib";
 import MessageContainer from "@/components/MessageContainer";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 
 const ChatContainer = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -32,15 +33,31 @@ const ChatHeader = ({
   );
 };
 
-const ChatMessages = ({ messages }: { messages: SessionChatMessage[] }) => {
+const ChatMessages = ({
+  messages,
+  currentUserName,
+  isLoading,
+}: {
+  messages: SessionChatMessage[];
+  currentUserName: string;
+  isLoading: boolean;
+}) => {
   console.log({ messages });
   return (
     <div className="flex-1 p-2 overflow-y-auto flex flex-col justify-end">
       {messages.map((message, index) => (
         <div key={index} className="w-full flex flex-col mb-2">
-          <MessageContainer message={message} />
+          <MessageContainer
+            message={message}
+            currentUserName={currentUserName}
+          />
         </div>
       ))}
+      {isLoading && (
+        <div className="w-full flex justify-center items-center">
+          <Loader2 className="w-4 h-4 animate-spin" /> Connecting to the room...
+        </div>
+      )}
     </div>
   );
 };
@@ -131,6 +148,7 @@ const Chat = ({
   typerUsers,
   messages,
   sessionUsers,
+  isLoading,
 }: ChatRoomType) => {
   const onSubmit = (message: string) => {
     if (!client) return;
@@ -147,7 +165,11 @@ const Chat = ({
       <ChatConnectionSucess name={name} sessionId={sessionId} />
       <ChatContainer>
         <ChatHeader name={name} sessionId={sessionId} />
-        <ChatMessages messages={messages} />
+        <ChatMessages
+          messages={messages}
+          currentUserName={name}
+          isLoading={isLoading}
+        />
         <ChatFooter
           onSubmit={onSubmit}
           handleTypingStatus={handleTypingStatus}

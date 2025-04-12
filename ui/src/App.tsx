@@ -1,8 +1,8 @@
 import { Toaster } from "@/components/ui/sonner";
 import Chat from "./pages/Chat";
 
-import { useState, useEffect, useCallback } from "react";
-import { createSession, initClient } from "./hooks/useSocket";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { createSession, initClient, joinSession } from "./hooks/useSocket";
 import { chatRoomActionType, chatDetailsType } from "./types/ChatRoom";
 import {
   SessionChatMessage,
@@ -14,14 +14,18 @@ import ActionButton from "./components/ActionButton";
 
 function App() {
   const [client, setClient] = useState<TelepartyClient | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const userIdRef = useRef<string>("");
+  const [isLoading, setIsLoading] = useState({
+    connection: true,
+    session: true,
+  });
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatDetails, setChatDetails] = useState<chatDetailsType>({
     name: "",
     sessionId: "",
     imageUrl: "",
     action: "create",
-    typerUsers: [], // import { StrictMode } from "react";
+    typerUsers: [],
     messages: [],
   });
   const [sessionUsers, setSessionUsers] = useState<string[]>([]);
@@ -41,38 +45,53 @@ function App() {
     toastMessage({
       message: "Connection has been closed",
       type: "error",
+      persist: true,
       action: {
         label: "Reload",
         onClick: () => window.location.reload(),
       },
     });
     setTyperUsers([]);
-    setSessionUsers([]);
-    setMessages([]);
-  }, [setTyperUsers]);
+  }, []);
 
   const onMessage = useCallback(
     (message: SessionChatMessage) => {
-      console.log("Received message: " + JSON.stringify(message, null, 2));
-      if (message.type === SocketMessageTypes.SEND_MESSAGE) {
-        setMessages((prev) => [...prev, message.data]);
-      }
-      if (message.type === SocketMessageTypes.SET_TYPING_PRESENCE) {
-        if (message.data.anyoneTyping) {
-          setTyperUsers(message.data.usersTyping);
-        } else {
-          setTyperUsers([]);
-        }
-      }
-      if (message.type === "userList") {
-        setSessionUsers(message.data);
+      switch (message.type) {
+        case "userId":
+          userIdRef.current = message.data.userId;
+          break;
+
+        case "userList":
+          setSessionUsers(message.data);
+          break;
+
+        case SocketMessageTypes.SEND_MESSAGE:
+          setMessages((prev) => [...prev, message.data]);
+          if (isLoading.session) {
+            setIsLoading((prev) => ({ ...prev, session: false }));
+          }
+          break;
+
+        case SocketMessageTypes.SET_TYPING_PRESENCE:
+          if (message.data.anyoneTyping) {
+            setTyperUsers(
+              message.data.usersTyping.filter(
+                (user) => user !== userIdRef.current
+              )
+            );
+          } else {
+            setTyperUsers([]);
+          }
+          break;
+
+        default:
+          break;
       }
     },
-    [setMessages, setTyperUsers]
+    [isLoading.session]
   );
 
-  const setupClient = async () => {
-    console.log("Setting up client");
+  const setupClient = useCallback(async () => {
     try {
       const newClient = await initClient({
         onConnectionReady,
@@ -87,9 +106,9 @@ function App() {
         message: "Failed to initialize socket client",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoading((prev) => ({ ...prev, connection: false }));
     }
-  };
+  }, []);
 
   useEffect(() => {
     setupClient();
@@ -135,24 +154,16 @@ function App() {
     if (!client || !name || !sessionId) {
       return;
     }
+    await joinSession(client, sessionId, name, imageUrl);
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isLoading.connection) {
+    return <div>Loading connection...</div>;
   }
 
   return (
     <div id="root" className="w-full h-full flex flex-col items-center gap-4">
-      {isChatOpen ? (
-        <Chat
-          client={client}
-          name={chatDetails.name}
-          sessionId={chatDetails.sessionId}
-          typerUsers={typerUsers}
-          messages={messages}
-          sessionUsers={sessionUsers}
-        />
-      ) : (
+      {!isChatOpen ? (
         <div className="w-full flex flex-col justify-center items-center gap-4">
           <div className="text-2xl font-bold">
             Welcome to Teleparty! What do you want to do today?
@@ -182,6 +193,16 @@ function App() {
             />
           </div>
         </div>
+      ) : (
+        <Chat
+          client={client}
+          name={chatDetails.name}
+          sessionId={chatDetails.sessionId}
+          typerUsers={typerUsers}
+          messages={messages}
+          sessionUsers={sessionUsers}
+          isLoading={isLoading.session}
+        />
       )}
       <Toaster />
     </div>

@@ -9,6 +9,7 @@ export type ChatRoomType = {
   typerUsers: string[];
   messages: SessionChatMessage[];
   sessionUsers: string[];
+  isLoading: boolean;
 };
 
 export type chatRoomActionType = {

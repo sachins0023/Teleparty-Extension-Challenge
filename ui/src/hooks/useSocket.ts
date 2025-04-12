@@ -28,7 +28,7 @@ export const initClient = async ({
 export const createSession = async (
   client: TelepartyClient,
   nickname: string,
-  userIcon: string
+  userIcon: string | undefined
 ) => {
   const roomId = await client.createChatRoom(nickname, userIcon);
   console.log("Room is created successfully", { roomId });
@@ -39,7 +39,7 @@ export const joinSession = async (
   client: TelepartyClient,
   roomId: string,
   nickname: string,
-  userIcon: string
+  userIcon: string | undefined
 ) => {
   await client.joinChatRoom(nickname, roomId, userIcon);
 };
