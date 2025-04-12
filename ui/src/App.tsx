@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import Chat from "./pages/Chat";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createSession, initClient } from "./hooks/useSocket";
 import { chatRoomActionType, chatDetailsType } from "./types/ChatRoom";
 import {
@@ -21,13 +21,12 @@ function App() {
     sessionId: "",
     imageUrl: "",
     action: "create",
-    typerUsers: [],
+    typerUsers: [], // import { StrictMode } from "react";
     messages: [],
   });
   const [sessionUsers, setSessionUsers] = useState<string[]>([]);
   const [typerUsers, setTyperUsers] = useState<string[]>([]);
   const [messages, setMessages] = useState<SessionChatMessage[]>([]);
-  const socketInitialized = useRef(false);
 
   const onConnectionReady = useCallback(() => {
     console.log("Connection has been established");
@@ -48,6 +47,8 @@ function App() {
       },
     });
     setTyperUsers([]);
+    setSessionUsers([]);
+    setMessages([]);
   }, [setTyperUsers]);
 
   const onMessage = useCallback(
@@ -70,37 +71,29 @@ function App() {
     [setMessages, setTyperUsers]
   );
 
+  const setupClient = async () => {
+    console.log("Setting up client");
+    try {
+      const newClient = await initClient({
+        onConnectionReady,
+        onClose,
+        onMessage,
+      });
+      setClient(newClient);
+    } catch (error) {
+      console.error("Failed to initialize socket client:", error);
+      toastMessage({
+        type: "error",
+        message: "Failed to initialize socket client",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (socketInitialized.current) return;
-
-    const setupClient = async () => {
-      try {
-        const newClient = await initClient({
-          onConnectionReady,
-          onClose,
-          onMessage,
-        });
-        setClient(newClient);
-        socketInitialized.current = true;
-      } catch (error) {
-        console.error("Failed to initialize socket client:", error);
-        toastMessage({
-          type: "error",
-          message: "Failed to initialize socket client",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
     setupClient();
-
-    return () => {
-      if (client) {
-        client.close();
-        socketInitialized.current = false;
-      }
-    };
-  }, [onConnectionReady, onClose, onMessage]);
+  }, []);
 
   const handleCreateChatRoom = async ({
     name,
