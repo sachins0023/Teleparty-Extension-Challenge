@@ -1,15 +1,17 @@
-import { useNavigate } from "react-router";
 import ActionButton from "../components/ActionButton";
-const Home = () => {
-  const navigate = useNavigate();
-  const handleCreateChatRoom = () => {
-    navigate("/chat");
-  };
-  const handleJoinChatRoom = () => {
-    navigate("/chat");
-  };
+import { chatRoomActionType } from "@/types/ChatRoom";
+
+const Home = ({
+  handleCreateChatRoom,
+  handleJoinChatRoom,
+}: {
+  handleCreateChatRoom: (payload: chatRoomActionType) => void;
+  handleJoinChatRoom: (payload: chatRoomActionType) => void;
+}) => {
+  // const navigate = useNavigate();
+
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center gap-4">
+    <div className="w-full flex flex-col justify-center items-center gap-4">
       <div className="text-2xl font-bold">
         Welcome to Teleparty! What do you want to do today?
       </div>

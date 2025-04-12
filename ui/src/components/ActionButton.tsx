@@ -13,35 +13,41 @@ import { Input } from "@/components/ui/input";
 import UserAvatar from "./UserAvatar";
 import { useState } from "react";
 import { toastMessage } from "./Toast";
+import { chatRoomActionType } from "@/types/ChatRoom";
 
 export default function ActionButton({
   action,
   buttonText,
   onSubmit,
+  name: initialName,
+  sessionId: initialSessionId,
+  imageUrl: initialImageUrl,
 }: {
   action: "create" | "join";
   buttonText: string;
-  onSubmit: () => void;
+  onSubmit: (payload: chatRoomActionType) => void;
+  name: string;
+  sessionId: string;
+  imageUrl: string;
 }) {
-  const [name, setName] = useState<string>("");
-  const [sessionId, setSessionId] = useState<string>("");
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const [name, setName] = useState<string>(initialName);
+  const [sessionId, setSessionId] = useState<string>(initialSessionId);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(initialImageUrl);
   const [errors, setErrors] = useState<{ name?: string; sessionId?: string }>(
     {}
   );
+  const [open, setOpen] = useState(false);
 
   const handleSubmit = () => {
     if (action === "create") {
       if (!name) {
         toastMessage("Name is required", "Error");
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          name: "Name is required",
-        }));
+        setErrors({ name: "Name is required" });
         return;
       }
       setErrors({});
-      onSubmit();
+      onSubmit({ name, sessionId: undefined, imageUrl: imageUrl || "" });
+      setOpen(false);
     } else {
       if (!name) {
         toastMessage("Name is required", "Error");
@@ -68,7 +74,13 @@ export default function ActionButton({
         }));
       }
       if (name && sessionId) {
-        onSubmit();
+        const payload = {
+          name,
+          sessionId,
+          imageUrl: imageUrl || "",
+        };
+        onSubmit(payload);
+        setOpen(false);
       }
     }
   };
@@ -80,14 +92,8 @@ export default function ActionButton({
     setImageUrl(undefined);
   };
 
-  const handleDialogClose = (open: boolean) => {
-    if (!open) {
-      reset();
-    }
-  };
-
   return (
-    <Dialog onOpenChange={handleDialogClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-blue-500 text-white p-2 rounded-md cursor-pointer">
           {buttonText}

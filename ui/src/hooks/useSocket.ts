@@ -5,19 +5,26 @@ import {
   SessionChatMessage,
 } from "teleparty-websocket-lib";
 
-const eventHandler: SocketEventHandler = {
-  onConnectionReady: () => {
-    alert("Connection has been established");
-  },
-  onClose: () => {
-    alert("Socket has been closed");
-  },
-  onMessage: (message) => {
-    alert("Received message: " + message);
-  },
-};
-
-export const initClient = () => {
+export const initClient = async ({
+  onConnectionReady,
+  onClose,
+  onMessage,
+}: {
+  onConnectionReady: () => void;
+  onClose: () => void;
+  onMessage: (message: SessionChatMessage) => void;
+}) => {
+  const eventHandler: SocketEventHandler = {
+    onConnectionReady: () => {
+      onConnectionReady();
+    },
+    onClose: () => {
+      onClose();
+    },
+    onMessage: (message) => {
+      onMessage(message);
+    },
+  };
   const client = new TelepartyClient(eventHandler);
   return client;
 };
@@ -28,6 +35,7 @@ export const createSession = async (
   userIcon: string
 ) => {
   const roomId = await client.createChatRoom(nickname, userIcon);
+  console.log("Room is created successfully", { roomId });
   return roomId;
 };
 
@@ -44,6 +52,7 @@ export const sendMessage = (client: TelepartyClient, message: string) => {
   client.sendMessage(SocketMessageTypes.SEND_MESSAGE, {
     body: message,
   });
+  console.log("Message sent successfully", { message });
 };
 
 export const updateTypingStatus = (
@@ -53,4 +62,5 @@ export const updateTypingStatus = (
   client.sendMessage(SocketMessageTypes.SET_TYPING_PRESENCE, {
     typing,
   });
+  console.log("Typing status updated successfully", { typing });
 };
