@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import Chat from "./pages/Chat";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createSession, initClient } from "./hooks/useSocket";
 import { chatRoomActionType, chatDetailsType } from "./types/ChatRoom";
 import {
@@ -24,35 +24,55 @@ function App() {
     typerUsers: [],
     messages: [],
   });
+  const [sessionUsers, setSessionUsers] = useState<string[]>([]);
   const [typerUsers, setTyperUsers] = useState<string[]>([]);
   const [messages, setMessages] = useState<SessionChatMessage[]>([]);
+  const socketInitialized = useRef(false);
 
-  const onConnectionReady = () => {
+  const onConnectionReady = useCallback(() => {
     console.log("Connection has been established");
-    toastMessage("Connection has been established", "Success");
-  };
+    toastMessage({
+      message: "Connection has been established",
+      type: "success",
+    });
+  }, []);
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     console.log("Socket has been closed");
-    toastMessage("Connection has been closed", "Error");
+    toastMessage({
+      message: "Connection has been closed",
+      type: "error",
+      action: {
+        label: "Reload",
+        onClick: () => window.location.reload(),
+      },
+    });
     setTyperUsers([]);
-  };
+  }, [setTyperUsers]);
 
-  const onMessage = (message: SessionChatMessage) => {
-    console.log("Received message: " + JSON.stringify(message, null, 2));
-    if (message.type === SocketMessageTypes.SEND_MESSAGE) {
-      setMessages((prev) => [...prev, message.data]);
-    }
-    if (message.type === SocketMessageTypes.SET_TYPING_PRESENCE) {
-      if (message.data.anyoneTyping) {
-        setTyperUsers(message.data.usersTyping);
-      } else {
-        setTyperUsers([]);
+  const onMessage = useCallback(
+    (message: SessionChatMessage) => {
+      console.log("Received message: " + JSON.stringify(message, null, 2));
+      if (message.type === SocketMessageTypes.SEND_MESSAGE) {
+        setMessages((prev) => [...prev, message.data]);
       }
-    }
-  };
+      if (message.type === SocketMessageTypes.SET_TYPING_PRESENCE) {
+        if (message.data.anyoneTyping) {
+          setTyperUsers(message.data.usersTyping);
+        } else {
+          setTyperUsers([]);
+        }
+      }
+      if (message.type === "userList") {
+        setSessionUsers(message.data);
+      }
+    },
+    [setMessages, setTyperUsers]
+  );
 
   useEffect(() => {
+    if (socketInitialized.current) return;
+
     const setupClient = async () => {
       try {
         const newClient = await initClient({
@@ -61,15 +81,26 @@ function App() {
           onMessage,
         });
         setClient(newClient);
+        socketInitialized.current = true;
       } catch (error) {
         console.error("Failed to initialize socket client:", error);
-        toastMessage("Failed to initialize socket client", "Error");
+        toastMessage({
+          type: "error",
+          message: "Failed to initialize socket client",
+        });
       } finally {
         setIsLoading(false);
       }
     };
     setupClient();
-  }, []);
+
+    return () => {
+      if (client) {
+        client.close();
+        socketInitialized.current = false;
+      }
+    };
+  }, [onConnectionReady, onClose, onMessage]);
 
   const handleCreateChatRoom = async ({
     name,
@@ -85,7 +116,7 @@ function App() {
     imageUrl,
   }: {
     name: string;
-    imageUrl: string;
+    imageUrl: string | undefined;
   }) => {
     if (!client || !name) {
       return;
@@ -126,6 +157,7 @@ function App() {
           sessionId={chatDetails.sessionId}
           typerUsers={typerUsers}
           messages={messages}
+          sessionUsers={sessionUsers}
         />
       ) : (
         <div className="w-full flex flex-col justify-center items-center gap-4">

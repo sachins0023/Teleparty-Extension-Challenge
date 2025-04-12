@@ -34,7 +34,10 @@ export default function ActionButton({
   const handleSubmit = () => {
     if (action === "create") {
       if (!name) {
-        toastMessage("Name is required", "Error");
+        toastMessage({
+          type: "error",
+          message: "Name is required",
+        });
         setErrors({ name: "Name is required" });
         return;
       }
@@ -43,7 +46,10 @@ export default function ActionButton({
       setOpen(false);
     } else {
       if (!name) {
-        toastMessage("Name is required", "Error");
+        toastMessage({
+          type: "error",
+          message: "Name is required",
+        });
         setErrors((prevErrors) => ({
           ...prevErrors,
           name: "Name is required",
@@ -55,7 +61,10 @@ export default function ActionButton({
         }));
       }
       if (!sessionId) {
-        toastMessage("Session ID is required", "Error");
+        toastMessage({
+          type: "error",
+          message: "Session ID is required",
+        });
         setErrors((prevErrors) => ({
           ...prevErrors,
           sessionId: "Session ID is required",

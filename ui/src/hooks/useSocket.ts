@@ -15,14 +15,10 @@ export const initClient = async ({
   onMessage: (message: SessionChatMessage) => void;
 }) => {
   const eventHandler: SocketEventHandler = {
-    onConnectionReady: () => {
-      onConnectionReady();
-    },
-    onClose: () => {
-      onClose();
-    },
+    onConnectionReady,
+    onClose,
     onMessage: (message) => {
-      onMessage(message);
+      onMessage(message as unknown as SessionChatMessage);
     },
   };
   const client = new TelepartyClient(eventHandler);

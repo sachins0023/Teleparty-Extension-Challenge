@@ -8,6 +8,7 @@ export type ChatRoomType = {
   client: TelepartyClient | null;
   typerUsers: string[];
   messages: SessionChatMessage[];
+  sessionUsers: string[];
 };
 
 export type chatRoomActionType = {

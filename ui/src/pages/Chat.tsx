@@ -83,10 +83,12 @@ const ChatFooter = ({
   onSubmit,
   handleTypingStatus,
   typerUsers,
+  sessionUsers,
 }: {
   onSubmit: (message: string) => void;
   handleTypingStatus: (typing: boolean) => void;
   typerUsers: string[];
+  sessionUsers: string[];
 }) => {
   const [message, setMessage] = useState("");
   const onMessageSubmit = () => {
@@ -104,7 +106,14 @@ const ChatFooter = ({
         />
         {typerUsers.length > 0 && (
           <p className="text-xs text-gray-500">
-            {typerUsers.join(", ")} is typing...
+            {typerUsers
+              .map(
+                (user) =>
+                  sessionUsers.find((u) => u.socketConnectionId === user)
+                    ?.userSettings?.userNickname || user
+              )
+              .join(", ")}{" "}
+            is typing...
           </p>
         )}
       </div>
@@ -121,6 +130,7 @@ const Chat = ({
   client,
   typerUsers,
   messages,
+  sessionUsers,
 }: ChatRoomType) => {
   const onSubmit = (message: string) => {
     if (!client) return;
@@ -142,6 +152,7 @@ const Chat = ({
           onSubmit={onSubmit}
           handleTypingStatus={handleTypingStatus}
           typerUsers={typerUsers}
+          sessionUsers={sessionUsers}
         />
       </ChatContainer>
     </div>
