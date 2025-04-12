@@ -24,7 +24,9 @@ export default function ActionButton({
   imageUrl: initialImageUrl,
 }: ActionButtonProps) {
   const [name, setName] = useState<string>(initialName);
-  const [sessionId, setSessionId] = useState<string>(initialSessionId);
+  const [sessionId, setSessionId] = useState<string | undefined>(
+    initialSessionId
+  );
   const [imageUrl, setImageUrl] = useState<string | undefined>(initialImageUrl);
   const [errors, setErrors] = useState<{ name?: string; sessionId?: string }>(
     {}

@@ -6,7 +6,8 @@ import ChatConnectionSucess from "./ChatConnectionSucess";
 import { SessionChatMessage } from "teleparty-websocket-lib";
 import MessageContainer from "@/components/MessageContainer";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Copy, Loader2 } from "lucide-react";
+import { toastMessage } from "@/components/Toast";
 
 const ChatContainer = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -29,6 +30,16 @@ const ChatHeader = ({
       <div>
         <p>Your room id is : {sessionId}</p>
       </div>
+      <Copy
+        className="w-4 h-4 cursor-pointer"
+        onClick={() => {
+          navigator.clipboard.writeText(sessionId || "");
+          toastMessage({
+            message: "Copied to clipboard",
+            type: "success",
+          });
+        }}
+      />
     </div>
   );
 };
@@ -42,7 +53,6 @@ const ChatMessages = ({
   currentUserName: string;
   isLoading: boolean;
 }) => {
-  console.log({ messages });
   return (
     <div className="flex-1 p-2 overflow-y-auto flex flex-col justify-end">
       {messages.map((message, index) => (
