@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { chatRoomActionType } from "@/types/ChatRoom";
+import { ChatRoomType } from "@/types/ChatRoom";
 import { sendMessage, updateTypingStatus } from "@/hooks/useSocket";
 import { Button } from "@/components/ui/button";
 import ChatConnectionSucess from "./ChatConnectionSucess";
 import { SessionChatMessage } from "teleparty-websocket-lib";
 import MessageContainer from "@/components/MessageContainer";
 import { Textarea } from "@/components/ui/textarea";
+
 const ChatContainer = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="w-150 h-250 border-2 border-gray-300 rounded-md flex flex-col">
@@ -19,7 +20,7 @@ const ChatHeader = ({
   sessionId,
 }: {
   name: string;
-  sessionId: string | null;
+  sessionId: string | undefined;
 }) => {
   return (
     <div className="h-16 border-b-2 border-gray-300 flex items-center p-2 gap-2">
@@ -120,12 +121,14 @@ const Chat = ({
   client,
   typerUsers,
   messages,
-}: chatRoomActionType) => {
+}: ChatRoomType) => {
   const onSubmit = (message: string) => {
+    if (!client) return;
     sendMessage(client, message);
   };
 
   const handleTypingStatus = (typing: boolean) => {
+    if (!client) return;
     updateTypingStatus(client, typing);
   };
 

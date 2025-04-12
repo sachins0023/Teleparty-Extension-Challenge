@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import UserAvatar from "./UserAvatar";
 import { useState } from "react";
 import { toastMessage } from "./Toast";
-import { chatRoomActionType } from "@/types/ChatRoom";
+import { ActionButtonProps } from "@/types/ActionButton";
 
 export default function ActionButton({
   action,
@@ -22,14 +22,7 @@ export default function ActionButton({
   name: initialName,
   sessionId: initialSessionId,
   imageUrl: initialImageUrl,
-}: {
-  action: "create" | "join";
-  buttonText: string;
-  onSubmit: (payload: chatRoomActionType) => void;
-  name: string;
-  sessionId: string;
-  imageUrl: string;
-}) {
+}: ActionButtonProps) {
   const [name, setName] = useState<string>(initialName);
   const [sessionId, setSessionId] = useState<string>(initialSessionId);
   const [imageUrl, setImageUrl] = useState<string | undefined>(initialImageUrl);
@@ -46,7 +39,7 @@ export default function ActionButton({
         return;
       }
       setErrors({});
-      onSubmit({ name, sessionId: undefined, imageUrl: imageUrl || "" });
+      onSubmit({ name, sessionId: undefined, imageUrl });
       setOpen(false);
     } else {
       if (!name) {
@@ -77,7 +70,7 @@ export default function ActionButton({
         const payload = {
           name,
           sessionId,
-          imageUrl: imageUrl || "",
+          imageUrl,
         };
         onSubmit(payload);
         setOpen(false);

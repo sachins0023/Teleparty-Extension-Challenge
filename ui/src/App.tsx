@@ -1,27 +1,26 @@
 import { Toaster } from "@/components/ui/sonner";
 import Chat from "./pages/Chat";
-import Home from "./pages/Home";
 
 import { useState, useEffect } from "react";
 import { createSession, initClient } from "./hooks/useSocket";
-import { chatRoomActionType } from "./types/ChatRoom";
+import { chatRoomActionType, chatDetailsType } from "./types/ChatRoom";
 import {
   SessionChatMessage,
   SocketMessageTypes,
   TelepartyClient,
 } from "teleparty-websocket-lib";
 import { toastMessage } from "./components/Toast";
+import ActionButton from "./components/ActionButton";
 
 function App() {
   const [client, setClient] = useState<TelepartyClient | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatDetails, setChatDetails] = useState<chatRoomActionType>({
+  const [chatDetails, setChatDetails] = useState<chatDetailsType>({
     name: "",
     sessionId: "",
     imageUrl: "",
     action: "create",
-    client: null,
     typerUsers: [],
     messages: [],
   });
@@ -123,18 +122,41 @@ function App() {
       {isChatOpen ? (
         <Chat
           client={client}
-          action={chatDetails.action}
           name={chatDetails.name}
           sessionId={chatDetails.sessionId}
-          imageUrl={chatDetails.imageUrl}
           typerUsers={typerUsers}
           messages={messages}
         />
       ) : (
-        <Home
-          handleCreateChatRoom={handleCreateChatRoom}
-          handleJoinChatRoom={handleJoinChatRoom}
-        />
+        <div className="w-full flex flex-col justify-center items-center gap-4">
+          <div className="text-2xl font-bold">
+            Welcome to Teleparty! What do you want to do today?
+          </div>
+          <div className="flex gap-2 items-center">
+            <div className="text-lg">Ready to chat with your friends?</div>
+            <ActionButton
+              action="create"
+              buttonText="Create Chat Room"
+              onSubmit={handleCreateChatRoom}
+              name={chatDetails.name}
+              sessionId={chatDetails.sessionId}
+              imageUrl={chatDetails.imageUrl}
+            />
+          </div>
+          <div className="flex gap-2 items-center">
+            <div className="text-lg">
+              Already have a chat room? Join it here.
+            </div>
+            <ActionButton
+              action="join"
+              buttonText="Join"
+              onSubmit={handleJoinChatRoom}
+              name={chatDetails.name}
+              sessionId={chatDetails.sessionId}
+              imageUrl={chatDetails.imageUrl}
+            />
+          </div>
+        </div>
       )}
       <Toaster />
     </div>

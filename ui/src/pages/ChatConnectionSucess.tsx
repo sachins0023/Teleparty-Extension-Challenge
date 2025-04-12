@@ -3,7 +3,7 @@ const ChatConnectionSucess = ({
   sessionId,
 }: {
   name: string;
-  sessionId: string | null;
+  sessionId: string | undefined;
 }) => {
   return (
     <div className="text-2xl font-bold text-center">
