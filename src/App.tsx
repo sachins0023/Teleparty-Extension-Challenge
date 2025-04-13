@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import Chat from "./pages/Chat";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { createSession, initClient, joinSession } from "./hooks/useSocket";
+import { createSession, initClient, joinSession } from "./socket";
 import { chatRoomActionType, chatDetailsType } from "./types/ChatRoom";
 import {
   SessionChatMessage,

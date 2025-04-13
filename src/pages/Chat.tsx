@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ChatRoomType } from "@/types/ChatRoom";
-import { sendMessage, updateTypingStatus } from "@/hooks/useSocket";
+import { sendMessage, updateTypingStatus } from "@/socket";
 import { Button } from "@/components/ui/button";
 import { SessionChatMessage } from "teleparty-websocket-lib";
 import MessageContainer from "@/components/MessageContainer";
