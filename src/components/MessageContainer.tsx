@@ -20,8 +20,9 @@ const MessageContainer = ({
     return (
       <div className="rounded-md p-2 w-full flex flex-col items-center">
         <DateContainer message={message} />
-        <div className="text-sm text-center text-gray-500">
-          {message.userNickname} {message.body}
+        <div className="text-sm text-center text-gray-500 gap-1 flex">
+          <p>{message.userNickname}</p>
+          <p>{message.body}</p>
         </div>
       </div>
     );
