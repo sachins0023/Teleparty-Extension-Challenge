@@ -4,17 +4,17 @@ This is a real-time chat application built as part of the Teleparty full-stack i
 
 ## 🚀 Live Demo
 
-🌐 [View the deployed app on GitHub Pages](https://https://sachins0023.github.io/teleparty-extension)
+🌐 [View the deployed app on GitHub Pages](https://sachins0023.github.io/teleparty-extension)
 
 ---
 
 ## 📦 Features
 
-✅ Create and join chat rooms using a unique ID  (Buttons will be disabled if connection closed).\n
-✅ Set your nickname and upload a user icon (base64 support).\n
-✅ Send and receive chat messages in real-time (Lookout for the green/red icon next to the user name in chat to know connection status. If red, reload the page as connection is closed).\n
-✅ Display system messages (user joined/left, room created).\n
-✅ Handle connection lifecycle (connected, closed) - Lookout for toaster informing connection status. Reload if connection closed.\n
+✅ Create and join chat rooms using a unique ID (Buttons will be disabled if connection closed).  
+✅ Set your nickname and upload a user icon (base64 support).  
+✅ Send and receive chat messages in real-time (Look out for the green/red icon next to the user name in chat to know connection status. If red, reload the page as connection is closed).  
+✅ Display system messages (user joined/left, room created).  
+✅ Handle connection lifecycle (connected, closed) – Look out for toaster informing connection status. Reload if connection is closed.  
 ✅ Deployed via GitHub Pages.
 
 ---
@@ -33,11 +33,11 @@ This is a real-time chat application built as part of the Teleparty full-stack i
 
 ## 🛠 Setup Instructions
 
-- Make sure you have latest versions of Node (20+) and npm (10+) as we are using React 19 and Tailwind 4.
+> Make sure you have the latest versions of Node (20+) and npm (10+) as we are using React 19 and Tailwind 4.
 
 ```bash
 # Clone the repo
-https://github.com/sachins0023/teleparty-extension
+git clone https://github.com/sachins0023/teleparty-extension.git
 
 # Install dependencies
 cd teleparty-extension
