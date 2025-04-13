@@ -4,6 +4,7 @@ import {
   SocketMessageTypes,
   SessionChatMessage,
 } from "teleparty-websocket-lib";
+import { SocketMessage } from "teleparty-websocket-lib/lib/SocketMessage";
 
 export const initClient = async ({
   onConnectionReady,
@@ -12,13 +13,13 @@ export const initClient = async ({
 }: {
   onConnectionReady: () => void;
   onClose: () => void;
-  onMessage: (message: SessionChatMessage) => void;
+  onMessage: (message: SocketMessage) => void;
 }) => {
   const eventHandler: SocketEventHandler = {
     onConnectionReady,
     onClose,
-    onMessage: (message) => {
-      onMessage(message as unknown as SessionChatMessage);
+    onMessage: (message: SocketMessage) => {
+      onMessage(message);
     },
   };
   const client = new TelepartyClient(eventHandler);
@@ -40,10 +41,10 @@ export const joinSession = async (
   roomId: string,
   nickname: string,
   userIcon: string | undefined
-) => {
+): Promise<{ messages: SessionChatMessage[] }> => {
   const resp = await client.joinChatRoom(nickname, roomId, userIcon);
-  console.log("Joined session", {resp: JSON.stringify(resp, null, 2)});
-  return resp
+  console.log("Joined session", { resp: JSON.stringify(resp, null, 2) });
+  return { messages: resp.messages };
 };
 
 export const sendMessage = (client: TelepartyClient, message: string) => {

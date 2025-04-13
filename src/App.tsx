@@ -3,7 +3,7 @@ import Chat from "./pages/Chat";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createSession, initClient, joinSession } from "./socket";
-import { chatRoomActionType, chatDetailsType } from "./types/ChatRoom";
+import { chatRoomActionType, chatDetailsType, SessionUser } from "./types/Chat";
 import {
   SessionChatMessage,
   SocketMessageTypes,
@@ -11,6 +11,7 @@ import {
 } from "teleparty-websocket-lib";
 import { toastMessage } from "@/utils";
 import ActionButton from "./components/ActionButton";
+import { SocketMessage } from "teleparty-websocket-lib/lib/SocketMessage";
 
 function App() {
   const [client, setClient] = useState<TelepartyClient | null>(null);
@@ -28,7 +29,7 @@ function App() {
     typerUsers: [],
     messages: [],
   });
-  const [sessionUsers, setSessionUsers] = useState<string[]>([]);
+  const [sessionUsers, setSessionUsers] = useState<SessionUser[]>([]);
   const [typerUsers, setTyperUsers] = useState<string[]>([]);
   const [messages, setMessages] = useState<SessionChatMessage[]>([]);
 
@@ -56,13 +57,14 @@ function App() {
   }, []);
 
   const onMessage = useCallback(
-    (message: SessionChatMessage) => {
+    (message: SocketMessage) => {
       switch (message.type) {
         case "userId":
           userIdRef.current = message.data.userId;
           break;
 
         case "userList":
+          console.log("userList", { message });
           setSessionUsers(message.data);
           break;
 
@@ -81,7 +83,7 @@ function App() {
           if (message.data.anyoneTyping) {
             setTyperUsers(
               message.data.usersTyping.filter(
-                (user) => user !== userIdRef.current
+                (user: string) => user !== userIdRef.current
               )
             );
           } else {

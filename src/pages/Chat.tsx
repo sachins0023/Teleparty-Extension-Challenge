@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChatRoomType } from "@/types/ChatRoom";
+import { ChatRoomType, SessionUser } from "@/types/Chat";
 import { sendMessage, updateTypingStatus } from "@/socket";
 import { Button } from "@/components/ui/button";
 import { SessionChatMessage } from "teleparty-websocket-lib";
@@ -125,7 +125,7 @@ const ChatInput = ({
       autoFocus
       className="rounded-md h-24 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
       placeholder="Enter your message here..."
-      onBlur={(e) => {
+      onBlur={() => {
         handleTypingStatus(false);
       }}
       value={message}
@@ -152,7 +152,7 @@ const ChatFooter = ({
   onSubmit: (message: string) => void;
   handleTypingStatus: (typing: boolean) => void;
   typerUsers: string[];
-  sessionUsers: string[];
+  sessionUsers: SessionUser[];
 }) => {
   const [message, setMessage] = useState("");
   const onMessageSubmit = () => {
@@ -172,7 +172,7 @@ const ChatFooter = ({
           <p className="text-xs text-gray-500">
             {typerUsers
               .map(
-                (user) =>
+                (user: string) =>
                   sessionUsers.find((u) => u.socketConnectionId === user)
                     ?.userSettings?.userNickname || user
               )

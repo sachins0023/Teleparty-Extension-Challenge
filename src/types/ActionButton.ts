@@ -1,4 +1,4 @@
-import { chatRoomActionType } from "./ChatRoom";
+import { chatRoomActionType } from "./Chat";
 
 export type ActionButtonProps = chatRoomActionType & {
   action: "create" | "join";
