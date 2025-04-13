@@ -2,7 +2,7 @@
 
 This is a real-time chat application built as part of the Teleparty full-stack interview process (frontend app). The app enables users to create or join chat rooms, set nicknames and user icons, and send/receive live messages using Teleparty WebSocket tools.
 
-## Assignment Sheet
+## 📄 Assignment Sheet
 🌐 [View the assignment question and Teleparty Socket documentation](https://drive.google.com/file/d/1NAZk-SFKiAc3QRzxVkvnuFwWOSD2W6nm/view)
 
 ---
