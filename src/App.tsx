@@ -174,7 +174,7 @@ function App() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-4">
       {!isChatOpen ? (
-        <div className="w-full flex flex-col justify-center items-center gap-4">
+        <div className="w-full flex flex-col justify-center items-center gap-4 border border-gray-200 rounded-md p-4 bg-gray-100">
           <div className="text-2xl font-bold">
             Welcome to Teleparty! What do you want to do today?
           </div>
