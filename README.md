@@ -10,12 +10,12 @@ This is a real-time chat application built as part of the Teleparty full-stack i
 
 ## 📦 Features
 
-✅ Create and join chat rooms using a unique ID  (Buttons will be disabled if connection closed)
-✅ Set your nickname and upload a user icon (base64 support)  
+✅ Create and join chat rooms using a unique ID  (Buttons will be disabled if connection closed).
+✅ Set your nickname and upload a user icon (base64 support).
 ✅ Send and receive chat messages in real-time (Lookout for the green/red icon next to the user name in chat to know connection status. If red, reload the page as connection is closed).
-✅ Display system messages (user joined/left, room created)  
+✅ Display system messages (user joined/left, room created).
 ✅ Handle connection lifecycle (connected, closed) - Lookout for toaster informing connection status. Reload if connection closed.
-✅ Deployed via GitHub Pages
+✅ Deployed via GitHub Pages.
 
 ---
 
