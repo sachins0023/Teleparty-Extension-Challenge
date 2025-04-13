@@ -50,6 +50,7 @@ const MessageContainer = ({
             name={message.userNickname || "user"}
             image={message.userIcon}
             color="gray"
+            fallbackType="text"
           />
         </div>
         <div className="flex items-end gap-2">

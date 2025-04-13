@@ -52,6 +52,7 @@ function App() {
       },
     });
     setTyperUsers([]);
+    setIsLoading((prev) => ({ ...prev, connection: true }));
   }, []);
 
   const onMessage = useCallback(
@@ -167,9 +168,9 @@ function App() {
     setMessages(messages);
   };
 
-  if (isLoading.connection) {
-    return <div>Loading connection...</div>;
-  }
+  // if (isLoading.connection) {
+  //   return <div>Loading connection...</div>;
+  // }
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-4">
@@ -187,6 +188,7 @@ function App() {
               name={chatDetails.name}
               sessionId={chatDetails.sessionId}
               imageUrl={chatDetails.imageUrl}
+              isConnected={!isLoading.connection}
             />
           </div>
           <div className="flex gap-2 items-center">
@@ -200,6 +202,7 @@ function App() {
               name={chatDetails.name}
               sessionId={chatDetails.sessionId}
               imageUrl={chatDetails.imageUrl}
+              isConnected={!isLoading.connection}
             />
           </div>
         </div>
@@ -213,6 +216,7 @@ function App() {
           sessionUsers={sessionUsers}
           isLoading={isLoading.session}
           imageUrl={chatDetails.imageUrl}
+          isConnected={!isLoading.connection}
         />
       )}
       <Toaster />

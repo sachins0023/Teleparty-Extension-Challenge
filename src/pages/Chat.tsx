@@ -9,6 +9,13 @@ import { Copy, Loader2, LoaderCircle, SendHorizontal } from "lucide-react";
 import { toastMessage } from "@/utils";
 import AvatarIcon from "@/components/AvatarIcon";
 
+const Badge = ({ isConnected }: { isConnected: boolean }) => {
+  if (isConnected) {
+    return <div className="w-2 h-2 bg-green-500 rounded-full" />;
+  }
+  return <div className="w-2 h-2 bg-red-500 rounded-full" />;
+};
+
 const ChatContainer = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="w-150 border-2 border-gray-300 rounded-md flex flex-col">
@@ -22,17 +29,20 @@ const ChatHeader = ({
   sessionId,
   isLoading,
   imageUrl,
+  isConnected,
 }: {
   name: string;
   sessionId: string | undefined;
   isLoading: boolean;
   imageUrl: string | undefined;
+  isConnected: boolean;
 }) => {
   return (
     <div className="h-16 border-b-2 border-gray-300 flex items-center p-2 gap-2 justify-between">
       <div className="flex items-center gap-2 text-xl font-bold">
         <AvatarIcon name={name || "user"} image={imageUrl} color="blue" />{" "}
         {name}
+        <Badge isConnected={isConnected} />
       </div>
       {isLoading ? (
         <p className="flex items-center gap-2">
@@ -190,6 +200,7 @@ const Chat = ({
   sessionUsers,
   isLoading,
   imageUrl,
+  isConnected,
 }: ChatRoomType) => {
   const onSubmit = (message: string) => {
     if (!client) return;
@@ -209,6 +220,7 @@ const Chat = ({
           sessionId={sessionId}
           isLoading={isLoading}
           imageUrl={imageUrl}
+          isConnected={isConnected}
         />
         <ChatMessages
           messages={messages}

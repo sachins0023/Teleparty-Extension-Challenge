@@ -22,6 +22,7 @@ export default function ActionButton({
   name: initialName,
   sessionId: initialSessionId,
   imageUrl: initialImageUrl,
+  isConnected,
 }: ActionButtonProps) {
   const [name, setName] = useState<string>(initialName);
   const [sessionId, setSessionId] = useState<string | undefined>(
@@ -99,7 +100,10 @@ export default function ActionButton({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md cursor-pointer">
+        <Button
+          className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md cursor-pointer"
+          disabled={!isConnected}
+        >
           {buttonText}
         </Button>
       </DialogTrigger>
@@ -173,6 +177,7 @@ export default function ActionButton({
             type="submit"
             onClick={handleSubmit}
             className="bg-blue-500 hover:bg-blue-600 cursor-pointer"
+            disabled={!isConnected}
           >
             Submit
           </Button>

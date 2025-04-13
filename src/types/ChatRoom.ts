@@ -11,6 +11,7 @@ export type ChatRoomType = {
   sessionUsers: string[];
   isLoading: boolean;
   imageUrl: string | undefined;
+  isConnected: boolean;
 };
 
 export type chatRoomActionType = {
