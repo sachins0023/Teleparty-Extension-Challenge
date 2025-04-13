@@ -2,6 +2,11 @@
 
 This is a real-time chat application built as part of the Teleparty full-stack interview process (frontend app). The app enables users to create or join chat rooms, set nicknames and user icons, and send/receive live messages using Teleparty WebSocket tools.
 
+## Assignment Sheet
+🌐 [View the assignment question and Teleparty Socket documentation](https://drive.google.com/file/d/1NAZk-SFKiAc3QRzxVkvnuFwWOSD2W6nm/view)
+
+---
+
 ## 🚀 Live Demo
 
 🌐 [View the deployed app on GitHub Pages](https://sachins0023.github.io/teleparty-extension)
@@ -14,6 +19,8 @@ This is a real-time chat application built as part of the Teleparty full-stack i
 ✅ Set your nickname and upload a user icon (base64 support). Currently supported only for chat header as base64 string is truncated for chat message avatar.  
 ✅ Send and receive chat messages in real-time (Look out for the green/red icon next to the user name in chat to know connection status. If red, reload the page as connection is closed).  
 ✅ Display system messages (user joined/left, room created).  
+✅ Display typing presence. See who is typing in real time.  
+✅ Load older messages in the chat room when a new user joins.  
 ✅ Handle connection lifecycle (connected, closed) – Look out for toaster informing connection status. Reload if connection is closed.  
 ✅ Deployed via GitHub Pages.
 
