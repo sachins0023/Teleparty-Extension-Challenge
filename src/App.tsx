@@ -9,7 +9,7 @@ import {
   SocketMessageTypes,
   TelepartyClient,
 } from "teleparty-websocket-lib";
-import { toastMessage } from "./components/Toast";
+import { toastMessage } from "@/utils";
 import ActionButton from "./components/ActionButton";
 
 function App() {
@@ -69,6 +69,10 @@ function App() {
           setMessages((prev) => [...prev, message.data]);
           if (isLoading.session) {
             setIsLoading((prev) => ({ ...prev, session: false }));
+            toastMessage({
+              message: "Connected to the room",
+              type: "success",
+            });
           }
           break;
 
@@ -154,7 +158,13 @@ function App() {
     if (!client || !name || !sessionId) {
       return;
     }
-    await joinSession(client, sessionId, name, imageUrl);
+    const { messages }: { messages: SessionChatMessage[] } = await joinSession(
+      client,
+      sessionId,
+      name,
+      imageUrl
+    );
+    setMessages(messages);
   };
 
   if (isLoading.connection) {
@@ -162,7 +172,7 @@ function App() {
   }
 
   return (
-    <div id="root" className="w-full h-full flex flex-col items-center gap-4">
+    <div className="w-full h-full flex flex-col items-center justify-center gap-4">
       {!isChatOpen ? (
         <div className="w-full flex flex-col justify-center items-center gap-4">
           <div className="text-2xl font-bold">
@@ -202,6 +212,7 @@ function App() {
           messages={messages}
           sessionUsers={sessionUsers}
           isLoading={isLoading.session}
+          imageUrl={chatDetails.imageUrl}
         />
       )}
       <Toaster />

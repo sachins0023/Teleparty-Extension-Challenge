@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export function formatTimestamp(timestamp: number): {
   date: string;
   time: string;
@@ -21,4 +23,22 @@ export function formatTimestamp(timestamp: number): {
     dateObj.getFullYear() === now.getFullYear();
 
   return { date, time, isToday };
+}
+
+export function toastMessage({
+  message,
+  type = "success",
+  action,
+  persist = false,
+}: {
+  message: string;
+  type: "success" | "error";
+  action?: { label: string; onClick: () => void };
+  persist?: boolean;
+}) {
+  return toast[type](message, {
+    duration: persist ? Infinity : 3000,
+    dismissible: persist,
+    action: action,
+  });
 }

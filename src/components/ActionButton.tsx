@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import UserAvatar from "./UserAvatar";
 import { useState } from "react";
-import { toastMessage } from "./Toast";
+import { toastMessage } from "@/utils";
 import { ActionButtonProps } from "@/types/ActionButton";
 
 export default function ActionButton({
@@ -99,7 +99,7 @@ export default function ActionButton({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-500 text-white p-2 rounded-md cursor-pointer">
+        <Button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md cursor-pointer">
           {buttonText}
         </Button>
       </DialogTrigger>
@@ -118,7 +118,6 @@ export default function ActionButton({
               name={name || "User"}
               image={imageUrl}
               onImageUpload={(imageString) => {
-                console.log("Image string: ", imageString);
                 setImageUrl(imageString);
               }}
             />
@@ -139,7 +138,7 @@ export default function ActionButton({
                 * Upload an image to use as your avatar
               </p>
               {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name}</p>
+                <p className="text-red-500 text-xs">* {errors.name}</p>
               )}
             </div>
           </div>
@@ -159,7 +158,7 @@ export default function ActionButton({
                   }}
                 />
                 {errors.sessionId && (
-                  <p className="text-red-500 text-sm">{errors.sessionId}</p>
+                  <p className="text-red-500 text-xs">* {errors.sessionId}</p>
                 )}
               </div>
             </div>
@@ -173,7 +172,7 @@ export default function ActionButton({
           <Button
             type="submit"
             onClick={handleSubmit}
-            className="bg-blue-500 cursor-pointer"
+            className="bg-blue-500 hover:bg-blue-600 cursor-pointer"
           >
             Submit
           </Button>

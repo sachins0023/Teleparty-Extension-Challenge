@@ -10,6 +10,7 @@ export type ChatRoomType = {
   messages: SessionChatMessage[];
   sessionUsers: string[];
   isLoading: boolean;
+  imageUrl: string | undefined;
 };
 
 export type chatRoomActionType = {

@@ -41,7 +41,9 @@ export const joinSession = async (
   nickname: string,
   userIcon: string | undefined
 ) => {
-  await client.joinChatRoom(nickname, roomId, userIcon);
+  const resp = await client.joinChatRoom(nickname, roomId, userIcon);
+  console.log("Joined session", {resp: JSON.stringify(resp, null, 2)});
+  return resp
 };
 
 export const sendMessage = (client: TelepartyClient, message: string) => {

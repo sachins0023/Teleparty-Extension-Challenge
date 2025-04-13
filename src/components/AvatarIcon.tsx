@@ -1,4 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const AvatarIcon = ({
   name,
@@ -9,20 +15,26 @@ const AvatarIcon = ({
   image?: string;
   color: string;
 }) => {
-  console.log("From server:", { image });
   return (
-    <Avatar id="avatar-icon" className="w-6 h-6 cursor-pointer">
-      <AvatarImage src={image} alt="Uploaded avatar" />
-      {color === "blue" ? (
-        <AvatarFallback className="bg-blue-500 text-white">
-          {name.charAt(0)}
-        </AvatarFallback>
-      ) : (
-        <AvatarFallback className="bg-green-500 text-white">
-          {name.charAt(0)}
-        </AvatarFallback>
-      )}
-    </Avatar>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Avatar id="avatar-icon" className="w-6 h-6 cursor-pointer">
+            <AvatarImage src={image} alt="Uploaded avatar" />
+            {color === "blue" ? (
+              <AvatarFallback className="bg-blue-500 text-white">
+                {name.charAt(0)}
+              </AvatarFallback>
+            ) : (
+              <AvatarFallback className="bg-gray-500 text-white">
+                {name.charAt(0)}
+              </AvatarFallback>
+            )}
+          </Avatar>
+        </TooltipTrigger>
+        <TooltipContent>{name}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
