@@ -147,11 +147,6 @@ function App() {
   };
 
   const handleLeaveRoom = async () => {
-    setIsSessionConnected(false);
-    setSessionId(undefined);
-    setTyperUsers([]);
-    setSessionUsers([]);
-    setMessages([]);
     setShouldReconnect(false);
     setIsClosingSession(true);
     if (client) {
@@ -160,9 +155,16 @@ function App() {
           message: "Session closed successfully",
           type: "success",
         });
+        localStorage.removeItem("sessionData");
         setIsChatOpen(false);
         setIsClosingSession(false);
-        localStorage.removeItem("sessionData");
+        setIsSessionConnected(false);
+        setSessionId(undefined);
+        setTyperUsers([]);
+        setSessionUsers([]);
+        setMessages([]);
+        setUserName(undefined);
+        setImageUrl(undefined);
       });
     }
     // localStorage.removeItem("sessionData");

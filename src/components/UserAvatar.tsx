@@ -1,4 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function UserAvatar({
   name,
@@ -9,12 +11,15 @@ export default function UserAvatar({
   image?: string;
   onImageUpload: (image: string) => void;
 }) {
+  const [isUploading, setIsUploading] = useState(false);
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsUploading(true);
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
         onImageUpload(reader.result as string);
+        setIsUploading(false);
       };
       reader.readAsDataURL(file);
     }
@@ -27,7 +32,13 @@ export default function UserAvatar({
         onClick={() => document.getElementById("avatar-input")?.click()}
       >
         <AvatarImage src={image} alt="Uploaded avatar" />
-        <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+        <AvatarFallback>
+          {isUploading ? (
+            <Loader2 className="w-8 h-8 text-black animate-spin" />
+          ) : (
+            name.charAt(0)
+          )}
+        </AvatarFallback>
       </Avatar>
 
       <input

@@ -1,5 +1,5 @@
-import { closeSession, initClient } from "@/socket";
-import { chatRoomActionType, SessionUser } from "@/types/Chat";
+import { initClient } from "@/socket";
+import { SessionUser } from "@/types/Chat";
 import { toastMessage, countdownToast } from "@/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -80,7 +80,7 @@ export const useClient = () => {
     setIsConnecting(false);
     setIsConnected(true);
     setShouldReconnect(true);
-    // setReconnectAttempts(0);
+    setReconnectAttempts(0);
   }, []);
 
   const onClose = useCallback(() => {
