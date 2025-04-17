@@ -62,7 +62,6 @@ export function countdownToast({
   const secondsTotal = Math.floor(totalDuration / 1000);
   let currentSeconds = secondsTotal;
 
-  // Create initial toast and store its ID
   const toastId = toast[type](
     initialMessage.replace("{countdown}", currentSeconds.toString()),
     {
@@ -72,7 +71,6 @@ export function countdownToast({
     }
   );
 
-  // Update the toast every second
   const intervalId = setInterval(() => {
     const elapsedTime = Date.now() - startTime;
     currentSeconds = Math.max(
@@ -81,7 +79,6 @@ export function countdownToast({
     );
 
     if (currentSeconds > 0) {
-      // Update existing toast
       toast[type](
         initialMessage.replace("{countdown}", currentSeconds.toString()),
         {
@@ -97,7 +94,6 @@ export function countdownToast({
     }
   }, 1000);
 
-  // Return function to clear the interval if needed
   return {
     id: toastId,
     clear: () => {
