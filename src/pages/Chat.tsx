@@ -153,12 +153,16 @@ const ChatFooter = ({
   typerUsers,
   sessionUsers,
   userId,
+  isConnected,
+  isLoading,
 }: {
   onSubmit: (message: string) => void;
   handleTypingStatus: (typing: boolean) => void;
   typerUsers: string[];
   sessionUsers: SessionUser[];
   userId: string | null;
+  isConnected: boolean;
+  isLoading: boolean;
 }) => {
   const [message, setMessage] = useState("");
 
@@ -193,6 +197,7 @@ const ChatFooter = ({
       <Button
         className="w-12 h-12 bg-blue-500 hover:bg-blue-600 rounded-xl cursor-pointer"
         onClick={onMessageSubmit}
+        disabled={!isConnected || isLoading}
       >
         <SendHorizontal />
       </Button>
@@ -215,7 +220,7 @@ const Chat = ({
   isClosingSession,
 }: ChatRoomType) => {
   const onSubmit = (message: string) => {
-    if (!client) return;
+    if (!client || !isConnected || isClosingSession || isLoading) return;
     sendMessage(client, message);
   };
 
@@ -245,12 +250,14 @@ const Chat = ({
           typerUsers={typerUsers}
           sessionUsers={sessionUsers}
           userId={userId}
+          isConnected={isConnected}
+          isLoading={isLoading}
         />
       </ChatContainer>
       <Button
         onClick={handleLeaveRoom}
         className="bg-red-500 hover:bg-red-600 cursor-pointer"
-        disabled={isClosingSession}
+        disabled={isClosingSession || !isConnected}
         isLoading={isClosingSession}
       >
         Leave Room
