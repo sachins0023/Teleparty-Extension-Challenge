@@ -4,7 +4,7 @@ import Chat from "./pages/Chat";
 import { useCallback, useEffect, useState } from "react";
 import { closeSession, createSession, joinSession } from "./socket";
 import { chatRoomActionType } from "./types/Chat";
-import { SessionChatMessage, TelepartyClient } from "teleparty-websocket-lib";
+import { SessionChatMessage } from "teleparty-websocket-lib";
 import ActionButton from "./components/ActionButton";
 import { useClient } from "./hooks/useClient";
 import { getSessionDataFromLocalStorage, toastMessage } from "./utils";
@@ -31,10 +31,7 @@ function App() {
     setMessages,
     isClientConnected,
     loadPreviousMessages,
-    isClientConnecting,
-    reconnectDelay,
     userId,
-    shouldReconnect,
     setShouldReconnect,
   } = useClient();
 
@@ -66,7 +63,7 @@ function App() {
             setIsChatOpen(true);
           }
         );
-      } catch (error) {
+      } catch (error: any) {
         toastMessage({
           message: error.message,
           type: "error",
@@ -167,7 +164,6 @@ function App() {
         setImageUrl(undefined);
       });
     }
-    // localStorage.removeItem("sessionData");
   };
 
   return (

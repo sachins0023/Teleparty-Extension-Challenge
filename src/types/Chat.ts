@@ -5,7 +5,7 @@ import { SessionChatMessage } from "teleparty-websocket-lib";
 export type ChatRoomType = {
   name: string | undefined;
   sessionId: string | undefined;
-  client: TelepartyClient | null;
+  client?: TelepartyClient | null;
   typerUsers: string[];
   messages: SessionChatMessage[];
   sessionUsers: SessionUser[];
@@ -21,7 +21,7 @@ export type chatRoomActionType = {
   name: string | undefined;
   sessionId: string | undefined;
   imageUrl: string | undefined;
-  client: TelepartyClient | null;
+  client?: TelepartyClient | null;
 };
 
 export type chatDetailsType = chatRoomActionType & {
