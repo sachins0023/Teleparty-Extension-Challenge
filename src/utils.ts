@@ -30,15 +30,86 @@ export function toastMessage({
   type = "success",
   action,
   persist = false,
+  duration = 3000,
 }: {
   message: string;
-  type: "success" | "error";
+  type: "success" | "error" | "info";
   action?: { label: string; onClick: () => void };
   persist?: boolean;
+  duration?: number;
 }) {
   return toast[type](message, {
-    duration: persist ? Infinity : 3000,
+    duration: persist ? Infinity : duration,
     dismissible: persist,
     action: action,
   });
 }
+
+export function countdownToast({
+  initialMessage,
+  type = "success",
+  action,
+  totalDuration = 3000,
+  onComplete,
+}: {
+  initialMessage: string;
+  type: "success" | "error" | "info";
+  action?: { label: string; onClick: () => void };
+  totalDuration?: number;
+  onComplete?: () => void;
+}) {
+  const startTime = Date.now();
+  const secondsTotal = Math.floor(totalDuration / 1000);
+  let currentSeconds = secondsTotal;
+
+  // Create initial toast and store its ID
+  const toastId = toast[type](
+    initialMessage.replace("{countdown}", currentSeconds.toString()),
+    {
+      duration: totalDuration,
+      dismissible: true,
+      action,
+    }
+  );
+
+  // Update the toast every second
+  const intervalId = setInterval(() => {
+    const elapsedTime = Date.now() - startTime;
+    currentSeconds = Math.max(
+      0,
+      Math.ceil((totalDuration - elapsedTime) / 1000)
+    );
+
+    if (currentSeconds > 0) {
+      // Update existing toast
+      toast[type](
+        initialMessage.replace("{countdown}", currentSeconds.toString()),
+        {
+          id: toastId,
+          duration: totalDuration - elapsedTime,
+          dismissible: true,
+          action,
+        }
+      );
+    } else {
+      clearInterval(intervalId);
+      onComplete?.();
+    }
+  }, 1000);
+
+  // Return function to clear the interval if needed
+  return {
+    id: toastId,
+    clear: () => {
+      clearInterval(intervalId);
+      toast.dismiss(toastId);
+    },
+  };
+}
+
+export const getSessionDataFromLocalStorage = () => {
+  const sessionData = localStorage.getItem("sessionData");
+  if (!sessionData) return null;
+  const { sessionId, name, imageUrl } = JSON.parse(sessionData);
+  return { sessionId, name, imageUrl };
+};

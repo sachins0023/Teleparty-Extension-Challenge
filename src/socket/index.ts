@@ -63,3 +63,8 @@ export const updateTypingStatus = (
   });
   console.log("Typing status updated successfully", { typing });
 };
+
+export const closeSession = async (client: TelepartyClient) => {
+  await client.teardown();
+  console.log("Session closed successfully");
+};

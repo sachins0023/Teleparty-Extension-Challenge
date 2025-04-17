@@ -14,7 +14,7 @@ const MessageContainer = ({
   currentUserName,
 }: {
   message: SessionChatMessage;
-  currentUserName: string;
+  currentUserName: string | undefined;
 }) => {
   if (message.isSystemMessage) {
     return (

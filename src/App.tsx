@@ -1,132 +1,124 @@
 import { Toaster } from "@/components/ui/sonner";
 import Chat from "./pages/Chat";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { createSession, initClient, joinSession } from "./socket";
-import { chatRoomActionType, chatDetailsType, SessionUser } from "./types/Chat";
-import {
-  SessionChatMessage,
-  SocketMessageTypes,
-  TelepartyClient,
-} from "teleparty-websocket-lib";
-import { toastMessage } from "@/utils";
+import { useCallback, useEffect, useState } from "react";
+import { closeSession, createSession, joinSession } from "./socket";
+import { chatRoomActionType } from "./types/Chat";
+import { SessionChatMessage, TelepartyClient } from "teleparty-websocket-lib";
 import ActionButton from "./components/ActionButton";
-import { SocketMessage } from "teleparty-websocket-lib/lib/SocketMessage";
+import { useClient } from "./hooks/useClient";
+import { getSessionDataFromLocalStorage, toastMessage } from "./utils";
 
 function App() {
-  const [client, setClient] = useState<TelepartyClient | null>(null);
-  const userIdRef = useRef<string>("");
-  const [isLoading, setIsLoading] = useState({
-    connection: true,
-    session: true,
-  });
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatDetails, setChatDetails] = useState<chatDetailsType>({
-    name: "",
-    sessionId: "",
-    imageUrl: "",
-    action: "create",
-    typerUsers: [],
-    messages: [],
-  });
-  const [sessionUsers, setSessionUsers] = useState<SessionUser[]>([]);
-  const [typerUsers, setTyperUsers] = useState<string[]>([]);
-  const [messages, setMessages] = useState<SessionChatMessage[]>([]);
+  const [userName, setUserName] = useState<string | undefined>(undefined);
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+  const [isSessionConnected, setIsSessionConnected] = useState(false);
+  const [isSessionConnecting, setIsSessionConnecting] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const [isClosingSession, setIsClosingSession] = useState(false);
+  const [currentAction, setCurrentAction] = useState<"create" | "join" | null>(
+    null
+  );
 
-  const onConnectionReady = useCallback(() => {
-    console.log("Connection has been established");
-    toastMessage({
-      message: "Connection has been established",
-      type: "success",
-    });
-  }, []);
+  const {
+    client,
+    typerUsers,
+    setTyperUsers,
+    sessionUsers,
+    setSessionUsers,
+    messages,
+    setMessages,
+    isClientConnected,
+    loadPreviousMessages,
+    isClientConnecting,
+    reconnectDelay,
+    userId,
+    shouldReconnect,
+    setShouldReconnect,
+  } = useClient();
 
-  const onClose = useCallback(() => {
-    console.log("Socket has been closed");
-    toastMessage({
-      message: "Connection has been closed",
-      type: "error",
-      persist: true,
-      action: {
-        label: "Reload",
-        onClick: () => window.location.reload(),
-      },
-    });
-    setTyperUsers([]);
-    setIsLoading((prev) => ({ ...prev, connection: true }));
-  }, []);
-
-  const onMessage = useCallback(
-    (message: SocketMessage) => {
-      switch (message.type) {
-        case "userId":
-          userIdRef.current = message.data.userId;
-          break;
-
-        case "userList":
-          console.log("userList", { message });
-          setSessionUsers(message.data);
-          break;
-
-        case SocketMessageTypes.SEND_MESSAGE:
-          setMessages((prev) => [...prev, message.data]);
-          if (isLoading.session) {
-            setIsLoading((prev) => ({ ...prev, session: false }));
+  const handleJoinChatRoom = useCallback(
+    async ({ client, name, sessionId, imageUrl }: chatRoomActionType) => {
+      if (!client || !name || !sessionId) {
+        return;
+      }
+      setUserName(name);
+      setImageUrl(imageUrl);
+      setSessionId(sessionId);
+      setIsSessionConnecting(true);
+      setCurrentAction("join");
+      try {
+        await joinSession(client, sessionId, name, imageUrl).then(
+          ({ messages }: { messages: SessionChatMessage[] }) => {
+            setIsSessionConnected(true);
             toastMessage({
               message: "Connected to the room",
               type: "success",
             });
+            loadPreviousMessages(messages);
+            storeSessionDataInLocalStorage({
+              sessionId,
+              name,
+              imageUrl,
+            });
+            setIsSessionConnecting(false);
+            setIsChatOpen(true);
           }
-          break;
-
-        case SocketMessageTypes.SET_TYPING_PRESENCE:
-          if (message.data.anyoneTyping) {
-            setTyperUsers(
-              message.data.usersTyping.filter(
-                (user: string) => user !== userIdRef.current
-              )
-            );
-          } else {
-            setTyperUsers([]);
-          }
-          break;
-
-        default:
-          break;
+        );
+      } catch (error) {
+        toastMessage({
+          message: error.message,
+          type: "error",
+        });
+        setIsSessionConnecting(false);
       }
     },
-    [isLoading.session]
+    [
+      loadPreviousMessages,
+      setIsChatOpen,
+      setUserName,
+      setImageUrl,
+      setSessionId,
+      setIsSessionConnected,
+      setIsSessionConnecting,
+    ]
   );
 
-  const setupClient = useCallback(async () => {
-    try {
-      const newClient = await initClient({
-        onConnectionReady,
-        onClose,
-        onMessage,
-      });
-      setClient(newClient);
-    } catch (error) {
-      console.error("Failed to initialize socket client:", error);
-      toastMessage({
-        type: "error",
-        message: "Failed to initialize socket client",
-      });
-    } finally {
-      setIsLoading((prev) => ({ ...prev, connection: false }));
-    }
-  }, []);
-
   useEffect(() => {
-    setupClient();
-  }, []);
+    const sessionData = getSessionDataFromLocalStorage();
+    if (!sessionData) return;
+    const { sessionId, name, imageUrl } = sessionData;
+
+    if (!sessionId || !name || !client || !isClientConnected) return;
+
+    handleJoinChatRoom({ client, sessionId, name, imageUrl });
+  }, [client, handleJoinChatRoom, isClientConnected]);
+
+  const storeSessionDataInLocalStorage = ({
+    sessionId,
+    name,
+    imageUrl,
+  }: {
+    sessionId: string | undefined;
+    name: string | undefined;
+    imageUrl: string | undefined;
+  }) => {
+    const sessionData = {
+      sessionId,
+      name,
+      imageUrl,
+    };
+    localStorage.setItem("sessionData", JSON.stringify(sessionData));
+  };
 
   const handleCreateChatRoom = async ({
     name,
     imageUrl,
   }: chatRoomActionType) => {
-    setIsChatOpen(true);
-    setChatDetails((prev) => ({ ...prev, name, imageUrl, action: "create" }));
+    setImageUrl(imageUrl);
+    setUserName(name);
+    setCurrentAction("create");
     handleCreateRoom({ name, imageUrl });
   };
 
@@ -134,45 +126,47 @@ function App() {
     name,
     imageUrl,
   }: {
-    name: string;
+    name: string | undefined;
     imageUrl: string | undefined;
   }) => {
     if (!client || !name) {
       return;
     }
-    const newRoomId = await createSession(client, name, imageUrl);
-    setChatDetails((prev) => ({ ...prev, sessionId: newRoomId }));
+    setIsSessionConnecting(true);
+    await createSession(client, name, imageUrl).then((newRoomId: string) => {
+      setSessionId(newRoomId);
+      setIsSessionConnected(true);
+      storeSessionDataInLocalStorage({
+        sessionId: newRoomId,
+        name,
+        imageUrl,
+      });
+      setIsSessionConnecting(false);
+      setIsChatOpen(true);
+    });
   };
 
-  const handleJoinChatRoom = async ({
-    name,
-    sessionId,
-    imageUrl,
-  }: chatRoomActionType) => {
-    setIsChatOpen(true);
-    setChatDetails((prev) => ({
-      ...prev,
-      name,
-      sessionId,
-      imageUrl,
-      action: "join",
-    }));
-
-    if (!client || !name || !sessionId) {
-      return;
+  const handleLeaveRoom = async () => {
+    setIsSessionConnected(false);
+    setSessionId(undefined);
+    setTyperUsers([]);
+    setSessionUsers([]);
+    setMessages([]);
+    setShouldReconnect(false);
+    setIsClosingSession(true);
+    if (client) {
+      await closeSession(client).then(() => {
+        toastMessage({
+          message: "Session closed successfully",
+          type: "success",
+        });
+        setIsChatOpen(false);
+        setIsClosingSession(false);
+        localStorage.removeItem("sessionData");
+      });
     }
-    const { messages }: { messages: SessionChatMessage[] } = await joinSession(
-      client,
-      sessionId,
-      name,
-      imageUrl
-    );
-    setMessages(messages);
+    // localStorage.removeItem("sessionData");
   };
-
-  // if (isLoading.connection) {
-  //   return <div>Loading connection...</div>;
-  // }
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-4">
@@ -187,10 +181,12 @@ function App() {
               action="create"
               buttonText="Create Chat Room"
               onSubmit={handleCreateChatRoom}
-              name={chatDetails.name}
-              sessionId={chatDetails.sessionId}
-              imageUrl={chatDetails.imageUrl}
-              isConnected={!isLoading.connection}
+              name={userName}
+              sessionId={sessionId}
+              imageUrl={imageUrl}
+              isConnected={isClientConnected}
+              isLoading={isSessionConnecting}
+              currentAction={currentAction}
             />
           </div>
           <div className="flex gap-2 items-center">
@@ -200,25 +196,32 @@ function App() {
             <ActionButton
               action="join"
               buttonText="Join"
-              onSubmit={handleJoinChatRoom}
-              name={chatDetails.name}
-              sessionId={chatDetails.sessionId}
-              imageUrl={chatDetails.imageUrl}
-              isConnected={!isLoading.connection}
+              onSubmit={({ ...args }) =>
+                handleJoinChatRoom({ ...args, client })
+              }
+              name={userName}
+              sessionId={sessionId}
+              imageUrl={imageUrl}
+              isConnected={isClientConnected}
+              isLoading={isSessionConnecting}
+              currentAction={currentAction}
             />
           </div>
         </div>
       ) : (
         <Chat
           client={client}
-          name={chatDetails.name}
-          sessionId={chatDetails.sessionId}
+          name={userName}
+          sessionId={sessionId}
           typerUsers={typerUsers}
           messages={messages}
           sessionUsers={sessionUsers}
-          isLoading={isLoading.session}
-          imageUrl={chatDetails.imageUrl}
-          isConnected={!isLoading.connection}
+          isLoading={!isSessionConnected}
+          imageUrl={imageUrl}
+          isConnected={isClientConnected}
+          handleLeaveRoom={handleLeaveRoom}
+          userId={userId}
+          isClosingSession={isClosingSession}
         />
       )}
       <Toaster />

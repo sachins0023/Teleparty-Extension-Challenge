@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ChatRoomType, SessionUser } from "@/types/Chat";
 import { sendMessage, updateTypingStatus } from "@/socket";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ const ChatHeader = ({
   imageUrl,
   isConnected,
 }: {
-  name: string;
+  name: string | undefined;
   sessionId: string | undefined;
   isLoading: boolean;
   imageUrl: string | undefined;
@@ -74,7 +74,7 @@ const ChatMessages = ({
   isLoading,
 }: {
   messages: SessionChatMessage[];
-  currentUserName: string;
+  currentUserName: string | undefined;
   isLoading: boolean;
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -114,20 +114,27 @@ const ChatInput = ({
   message,
   setMessage,
   handleTypingStatus,
+  isTyping,
 }: {
   onMessageSubmit: () => void;
   message: string;
   setMessage: (message: string) => void;
   handleTypingStatus: (typing: boolean) => void;
+  isTyping: boolean;
 }) => {
+  useEffect(() => {
+    if (message.length && !isTyping) {
+      handleTypingStatus(true);
+    } else if (!message.length && isTyping) {
+      handleTypingStatus(false);
+    }
+  }, [message, handleTypingStatus, isTyping]);
+
   return (
     <Textarea
       autoFocus
       className="rounded-md h-24 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
       placeholder="Enter your message here..."
-      onBlur={() => {
-        handleTypingStatus(false);
-      }}
       value={message}
       onChange={(e) => setMessage(e.target.value)}
       onKeyDown={(e) => {
@@ -135,9 +142,6 @@ const ChatInput = ({
           e.preventDefault(); // Prevent new line on Enter
           onMessageSubmit();
         }
-      }}
-      onFocus={() => {
-        handleTypingStatus(true);
       }}
     />
   );
@@ -148,17 +152,21 @@ const ChatFooter = ({
   handleTypingStatus,
   typerUsers,
   sessionUsers,
+  userId,
 }: {
   onSubmit: (message: string) => void;
   handleTypingStatus: (typing: boolean) => void;
   typerUsers: string[];
   sessionUsers: SessionUser[];
+  userId: string | null;
 }) => {
   const [message, setMessage] = useState("");
-  const onMessageSubmit = () => {
+
+  const onMessageSubmit = useCallback(() => {
     onSubmit(message);
     setMessage("");
-  };
+  }, [message, onSubmit]);
+
   return (
     <div className="h-32 border-t-2 border-gray-300 p-2 flex items-center gap-2">
       <div className="w-full h-full flex flex-col">
@@ -167,6 +175,7 @@ const ChatFooter = ({
           message={message}
           setMessage={setMessage}
           handleTypingStatus={handleTypingStatus}
+          isTyping={typerUsers.includes(userId || "")}
         />
         {typerUsers.length > 0 && (
           <p className="text-xs text-gray-500">
@@ -201,6 +210,9 @@ const Chat = ({
   isLoading,
   imageUrl,
   isConnected,
+  handleLeaveRoom,
+  userId,
+  isClosingSession,
 }: ChatRoomType) => {
   const onSubmit = (message: string) => {
     if (!client) return;
@@ -232,8 +244,17 @@ const Chat = ({
           handleTypingStatus={handleTypingStatus}
           typerUsers={typerUsers}
           sessionUsers={sessionUsers}
+          userId={userId}
         />
       </ChatContainer>
+      <Button
+        onClick={handleLeaveRoom}
+        className="bg-red-500 hover:bg-red-600 cursor-pointer"
+        disabled={isClosingSession}
+        isLoading={isClosingSession}
+      >
+        Leave Room
+      </Button>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { TelepartyClient } from "teleparty-websocket-lib";
 import { SessionChatMessage } from "teleparty-websocket-lib";
 
 export type ChatRoomType = {
-  name: string;
+  name: string | undefined;
   sessionId: string | undefined;
   client: TelepartyClient | null;
   typerUsers: string[];
@@ -12,12 +12,16 @@ export type ChatRoomType = {
   isLoading: boolean;
   imageUrl: string | undefined;
   isConnected: boolean;
+  handleLeaveRoom: () => void;
+  userId: string | null;
+  isClosingSession: boolean;
 };
 
 export type chatRoomActionType = {
-  name: string;
+  name: string | undefined;
   sessionId: string | undefined;
   imageUrl: string | undefined;
+  client: TelepartyClient | null;
 };
 
 export type chatDetailsType = chatRoomActionType & {
